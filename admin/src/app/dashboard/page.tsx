@@ -34,11 +34,6 @@ export default function OverviewPage() {
   const [stats, setStats] = useState<Statistics | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
 
-  useEffect(() => {
-    loadConfig();
-    loadStatistics();
-  }, []);
-
   const loadConfig = async () => {
     try {
       const res = await getConfig();
@@ -63,6 +58,11 @@ export default function OverviewPage() {
       setStatsLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadConfig();
+    loadStatistics();
+  }, []);
 
   const handleSave = async () => {
     setIsLoading(true);
