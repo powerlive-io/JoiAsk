@@ -187,6 +187,7 @@ export default function TagsPage() {
                       <Button
                         variant="outline"
                         size="sm"
+                        aria-label={`编辑话题 ${tag.tag_name}`}
                         onClick={() => openEditDialog(tag)}
                       >
                         <Pencil className="h-4 w-4" />
@@ -194,6 +195,7 @@ export default function TagsPage() {
                       <Button
                         variant="outline"
                         size="sm"
+                        aria-label={`删除话题 ${tag.tag_name}`}
                         onClick={() =>
                           setDeleteDialog({ open: true, id: tag.id })
                         }

@@ -189,6 +189,9 @@ export function AccountDialog({
       onMouseDown={onClose}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="登录 / 注册"
         className="w-full max-w-[420px] rounded-md border-2 border-dashed border-[var(--color-fabric-stitch)] bg-card p-5 text-foreground shadow-xl"
         onMouseDown={(event) => event.stopPropagation()}
       >

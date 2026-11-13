@@ -433,6 +433,7 @@ export function QuestionsPageContent({ isSpam }: QuestionsPageContentProps) {
                     </TableCell>
                     <TableCell className="text-center whitespace-nowrap">
                       <Checkbox
+                        aria-label="彩虹屁"
                         checked={question.is_rainbow}
                         onCheckedChange={(checked) =>
                           handleCheckboxChange(
@@ -445,6 +446,7 @@ export function QuestionsPageContent({ isSpam }: QuestionsPageContentProps) {
                     </TableCell>
                     <TableCell className="text-center whitespace-nowrap">
                       <Checkbox
+                        aria-label="归档"
                         checked={question.is_archive}
                         onCheckedChange={(checked) =>
                           handleCheckboxChange(
@@ -457,6 +459,7 @@ export function QuestionsPageContent({ isSpam }: QuestionsPageContentProps) {
                     </TableCell>
                     <TableCell className="text-center whitespace-nowrap">
                       <Checkbox
+                        aria-label="公开"
                         checked={question.is_publish}
                         onCheckedChange={(checked) =>
                           handleCheckboxChange(
