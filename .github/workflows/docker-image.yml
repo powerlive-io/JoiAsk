@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: xinrea/joiask
+  IMAGE_NAME: powerlive-io/joiask
 
 jobs:
   build:

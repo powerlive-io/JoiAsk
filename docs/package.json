@@ -3,18 +3,38 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vitepress dev",
-    "build": "vitepress build",
-    "preview": "vitepress preview",
+    "dev": "next dev",
+    "build": "next build",
+    "preview": "serve out",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "node --test tests/site.test.mjs"
   },
+  "dependencies": {
+    "@orama/orama": "3.1.18",
+    "@orama/tokenizers": "3.1.18",
+    "fumadocs-core": "16.19.0",
+    "fumadocs-mdx": "15.6.1",
+    "fumadocs-ui": "npm:@fumadocs/base-ui@16.19.0",
+    "lucide-react": "1.71.0",
+    "next": "16.4.6",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
   "devDependencies": {
-    "vitepress": "1.6.4"
+    "@tailwindcss/postcss": "4.3.5",
+    "@types/mdx": "2.0.14",
+    "@types/node": "26.6.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "postcss": "8.5.32",
+    "serve": "14.2.7",
+    "tailwindcss": "4.3.5",
+    "typescript": "npm:@typescript/typescript6@6.0.2"
   },
   "overrides": {
-    "vite": "6.4.6"
+    "compression": "1.8.2"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.18"
   }
 }

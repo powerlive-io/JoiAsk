@@ -1,4 +1,6 @@
-# 管理员与密码恢复
+---
+title: "管理员与密码恢复"
+---
 
 ## 角色与会话
 
@@ -12,7 +14,7 @@
 
 **角色首次迁移规则：** 对尚未设置角色的历史账号，用户名恰好为小写 `admin` 的账号迁移为超级管理员，其他账号迁移为普通管理员。每个账号只迁移一次；后续改名或重启不会改变角色，已有 `role=admin` 的账号即使用户名为 `admin` 也不会自动升级。若没有该历史用户名，不会任选账号授予特权，需要运维显式执行 `promote` 或 `create`。升级时先停止所有后端实例，完成迁移后再恢复流量，不要混用新旧版本。
 
-首次安装的完整流程见 [快速开始](./quick-start.md#_3-创建管理员)。
+首次安装的完整流程见 [快速开始](./quick-start.mdx#3-创建管理员)。
 
 ## 离线 CLI（仅服务端）
 
@@ -34,10 +36,10 @@ jask admin promote <username>
 
 ## 容器重置密码
 
-先停止全部后端实例，重用 [快速开始中隐藏输入的 Bash 命令](./quick-start.md#_3-创建管理员)，只将镜像及子命令一行改为：
+先停止全部后端实例，重用 [快速开始中隐藏输入的 Bash 命令](./quick-start.mdx#3-创建管理员)，只将镜像及子命令一行改为：
 
 ```bash
-            ghcr.io/xinrea/joiask:latest admin reset-password owner
+            ghcr.io/powerlive-io/joiask:latest admin reset-password owner
 ```
 
 ### 容器无法启动时恢复
@@ -54,7 +56,7 @@ jask admin promote <username>
         docker run --rm -i --workdir /work --entrypoint /work/jask \
             -v "$(pwd)/config.json:/work/config/config.json:ro" \
             -v "$(pwd)/data:/work/db" \
-            ghcr.io/xinrea/joiask:latest admin reset-password owner
+            ghcr.io/powerlive-io/joiask:latest admin reset-password owner
 )
 ```
 
@@ -68,7 +70,7 @@ jask admin promote <username>
 docker run --rm --workdir /work --entrypoint /work/jask \
     -v "$(pwd)/config.json:/work/config/config.json:ro" \
     -v "$(pwd)/data:/work/db" \
-    ghcr.io/xinrea/joiask:latest admin promote owner
+    ghcr.io/powerlive-io/joiask:latest admin promote owner
 ```
 
 ## 本机构建与运行

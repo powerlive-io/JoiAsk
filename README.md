@@ -8,9 +8,9 @@
 
 ## 开始使用
 
-推荐使用 Docker 部署，镜像为 `ghcr.io/xinrea/joiask:latest`。
+推荐使用 Docker 部署，镜像为 `ghcr.io/powerlive-io/joiask:latest`。
 
-按 **[快速开始](docs/guide/quick-start.md)** 完成配置、启动容器和创建管理员：
+按 **[快速开始](docs/content/guide/quick-start.mdx)** 完成配置、启动容器和创建管理员：
 
 1. 准备 `config.json`，生成并填写独立的 `security.session_secret`。
 2. 挂载配置、数据库和上传目录，启动容器。
@@ -23,18 +23,18 @@
 
 | 需要做什么 | 文档 |
 | --- | --- |
-| 首次部署 | [快速开始](docs/guide/quick-start.md) |
-| 配置数据库、图片存储和安全选项 | [配置参考](docs/guide/configuration.md) |
-| 管理账号、重置管理员密码 | [管理员与密码恢复](docs/guide/administrators.md) |
-| 使用 Compose、配置 HTTPS 或更新镜像 | [部署与更新](docs/guide/deployment.md) |
-| 使用格式标签、邮箱绑定和密码找回 | [投稿与邮箱](docs/guide/usage.md) |
-| 自定义前台外观 | [自定义 CSS](docs/guide/custom-css.md) |
-| 排查上传安全和运行问题 | [上传文件安全](docs/guide/upload-serving-security.md) / [故障排查](docs/guide/troubleshooting.md) |
+| 首次部署 | [快速开始](docs/content/guide/quick-start.mdx) |
+| 配置数据库、图片存储和安全选项 | [配置参考](docs/content/guide/configuration.mdx) |
+| 管理账号、重置管理员密码 | [管理员与密码恢复](docs/content/guide/administrators.mdx) |
+| 使用 Compose、配置 HTTPS 或更新镜像 | [部署与更新](docs/content/guide/deployment.mdx) |
+| 使用格式标签、邮箱绑定和密码找回 | [投稿与邮箱](docs/content/guide/usage.mdx) |
+| 自定义前台外观 | [自定义 CSS](docs/content/guide/custom-css.mdx) |
+| 排查上传安全和运行问题 | [上传文件安全](docs/content/guide/upload-serving-security.mdx) / [故障排查](docs/content/guide/troubleshooting.mdx) |
 
 ## 参与开发
 
 - [开发环境与贡献指南](CONTRIBUTING.md)
-- [文档站开发与发布](docs/maintaining.md)
+- [开发指南](docs/content/development.mdx)
 - [提交问题或建议](https://github.com/powerlive-io/JoiAsk/issues)
 
 ## 许可证
