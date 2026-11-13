@@ -81,6 +81,35 @@ cd admin && npm run dev -- --port 3001
 
 之后浏览器访问本地 localhost 即能够正常预览页面。
 
+## Playwright 浏览器测试
+
+测试使用真实的前台、管理后台和 Go API，覆盖登录与注销、投稿校验与草稿、格式预览、搜索和话题过滤、审核公开与撤回、拦截箱操作以及话题增删改。
+
+需要 Node.js 22+、Go（版本见 `go.mod`），以及支持 SQLite CGO 构建的 C 编译器。在仓库根目录运行：
+
+```bash
+npm ci
+npm --prefix frontend ci
+npm --prefix admin ci
+npx playwright install chromium
+npm run test:e2e
+```
+
+Linux 首次运行可用 `npx playwright install --with-deps chromium` 一并安装浏览器系统依赖。测试会自动构建 Go 后端，通过离线 CLI 创建测试管理员，启动两个 Next.js 开发服务器和同源代理；不需要手动启动服务、配置 Caddy 或准备 `config/config.json`。
+
+每次运行在系统临时目录中创建独立 SQLite 数据库、随机 Session 密钥和上传目录，正常退出或中断时清理，不读取或修改开发数据库。测试管理员凭据只用于该临时环境。各用例使用独立浏览器会话，测试数据在用例结束后清理；由于涉及全站设置，默认单 worker 执行，不要用 `--workers` 并行运行。
+
+默认占用 `127.0.0.1:14820`～`14823`，依次用于同源代理、Go API、前台和管理后台。端口冲突时可用 `E2E_PORT=15820 npm run test:e2e` 整体调整四个端口。测试不会复用已经运行的服务器；同一工作目录运行测试时，请先停止前台和后台的 `next dev`，避免争用 `.next` 构建目录。
+
+```bash
+npm run test:e2e:typecheck          # 检查测试代码类型
+npm run test:e2e -- --grep '匿名投稿' # 只运行指定流程
+npm run test:e2e:ui                 # Playwright 交互界面
+npm run test:e2e:report             # 查看上次 HTML 报告
+```
+
+失败时会保留截图、视频和 trace，保存在已忽略的 `test-results/` 与 `playwright-report/` 中。PR Check 会执行 Chromium 测试并上传报告，CI 失败用例重试一次。本套测试不依赖 B 站、SMTP 或 AI 审核等外部服务，也不验证这些服务的真实集成；开启投稿验证要求时，仅验证匿名用户的登录引导。
+
 ## 文档站
 
 文档源码位于 `docs/`（Fumadocs + Next.js 静态导出），使用独立的依赖和锁文件，不影响应用构建：
