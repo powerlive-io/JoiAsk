@@ -1,15 +1,10 @@
 name: PR Check
 
 on:
+  # Required checks must also report results for documentation-only changes.
   pull_request:
-    paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
   push:
     branches: [main]
-    paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
   workflow_dispatch:
 
 permissions:
