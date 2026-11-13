@@ -1,0 +1,83 @@
+---
+title: "上传文件安全与历史文件清理"
+description: 上传校验、/upload-img 响应头，以及本地存储与 OSS/CDN 部署下的历史文件清理。
+---
+
+本页介绍上传校验、`/upload-img/*` 的响应策略，以及本地存储和 OSS/CDN 部署下的历史文件清理。这些是运维与安全前提，变更图片格式或存储方式时请对照检查。
+
+## 上传校验
+
+匿名投稿的附件统一使用 `internal/imagefile` 的校验策略：
+
+- 根据文件实际字节判断 PNG / JPEG / GIF / WebP，不信任用户提供的文件名或 MIME 头。
+- 扩展名由识别结果决定，不使用上传时的原始文件名。
+- 拒绝空文件和超过 5 MiB 的文件。
+- 单次投稿最多 6 个附件，请求体（含 multipart 开销）上限 30 MiB。
+- 所有附件校验通过后才开始写入存储；格式错误的 multipart 请求会被拒绝，并清理临时文件。
+
+下载头像和站点图片也遵循同样的体积与位图类型规则。只有已登录用户上传站点素材时保留显式的 SVG 例外。
+
+需要明确：这是内容嗅探，不是完整的图片解码或内容清洗。匿名投稿保持开放；单 IP 限流和存储配额属于部署层面的独立事项。
+
+## 上传目录的响应策略
+
+`/upload-img/*` 下的内容一律视为不可信，包括早于上传校验存在的旧文件，以及管理员上传的 SVG。Caddy 配置与 Next 直接提供静态文件时应用相同的响应策略：
+
+```text
+Content-Security-Policy: sandbox; default-src 'none'; img-src data:; style-src 'unsafe-inline'
+X-Content-Type-Options: nosniff
+```
+
+- 只有 `.png`、`.jpg`、`.jpeg`、`.gif`、`.webp`、`.svg`（不区分大小写）以内联方式、按图片 MIME 类型返回。
+- 其他后缀（包括 `.html`）以 `application/octet-stream` 返回，并附带 `Content-Disposition: attachment`。
+- SVG 仍可作为 `<img>` 使用（站点素材也依赖这一点），但直接打开 SVG 时无法执行脚本，也不能继承站点源。
+
+这是一道**响应边界**，而不是对文件内容的校验：被错误标记为 `.png` 的文件可能无法解码显示，但仍会带上 sandbox 与 nosniff 响应头。
+
+<Callout type="warn">
+  不要给这个路径添加 `allow-scripts` 或 `allow-same-origin`。修改支持的图片格式时，同步更新 Caddy 与 Next 两份允许列表。
+</Callout>
+
+## OSS / CDN 部署
+
+上述本地策略**不覆盖**直接从阿里云 OSS 或其他对象存储 / CDN 返回的图片。对最终公开域名下所有 `/upload-img/*` 响应（包括缓存对象、304、适用的重定向和自定义错误页），都需要在 OSS/CDN 或上传域名代理上配置并验证同等效果：
+
+- 相同的 CSP 与 `X-Content-Type-Options: nosniff`。
+- MIME 允许列表与下载处置方式（`Content-Disposition`）。
+- 确认边缘节点不会剥离或覆盖这些响应头；上线后使旧的缓存响应头失效。
+
+<Callout type="info">
+  建议为不可信上传使用独立的无 Cookie 域名，作为额外的源隔离。它只是补充，不能替代响应头。
+</Callout>
+
+不要依赖 Caddy 的响应头：如果客户端能直接访问 OSS 地址，这些头就不会生效。尤其要避免让带有旧 `text/html` 或 `image/svg+xml` 元数据的对象直接渲染为未沙箱化的活动文档。
+
+## 清理历史文件
+
+部署响应头与后端上传校验后，需要审计**已有**文件：
+
+1. 审计本地挂载的上传目录（生产 `/work/frontend/public/upload-img/`，开发 `/srv/uploads`）和 OSS 的 `upload-img/` 前缀。
+2. 盘点扩展名、实际文件签名、HTML/SVG 文件以及不匹配的文件，并先查清数据库和配置中对它们的引用。
+3. 备份对象；将可疑或不受支持的文件隔离到公开目录 / 存储桶之外。
+4. 更新或移除引用，并使 CDN 缓存失效。
+5. 在每个公开入口验证有代表性的旧 URL。
+
+不要仅凭扩展名批量删除：受信任的站点素材可能使用 SVG，未知的旧引用需要人工复核。本仓库不会自动删除旧对象。
+
+## 本地回归检查
+
+需要 `caddy`、`node`、Python 3 和前端依赖：
+
+```bash
+cd frontend && npm ci && npm run build
+```
+
+然后在仓库根目录运行：
+
+```bash
+python3 scripts/test-upload-serving.py
+```
+
+该脚本通过 GET/HEAD 临时文件，检查两份 Caddy 配置和 Next 直接提供静态文件时的行为，覆盖历史 HTML/SVG、不支持的后缀和各类图片格式。
+
+它**不覆盖**生产环境的 OSS/CDN：在认定该路径已受保护之前，请单独测试其公开 URL 和响应头。

@@ -1,0 +1,19 @@
+{
+  "title": "JoiAsk",
+  "root": true,
+  "pages": [
+    "index",
+    "---开始使用---",
+    "guide/quick-start",
+    "guide/usage",
+    "guide/custom-css",
+    "---部署与维护---",
+    "guide/configuration",
+    "guide/administrators",
+    "guide/deployment",
+    "guide/upload-serving-security",
+    "guide/troubleshooting",
+    "---参与项目---",
+    "development"
+  ]
+}

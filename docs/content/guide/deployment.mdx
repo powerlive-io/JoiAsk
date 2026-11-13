@@ -1,6 +1,8 @@
-# 部署与更新
+---
+title: "部署与更新"
+---
 
-首次部署请先完成 [快速开始](./quick-start.md)，包括填写 Session 密钥和创建管理员。本页介绍可选部署方式、HTTPS 与升级流程。
+首次部署请先完成 [快速开始](./quick-start.mdx)，包括填写 Session 密钥和创建管理员。本页介绍可选部署方式、HTTPS 与升级流程。
 
 ## 从源码构建
 
@@ -26,12 +28,12 @@ docker run -d --restart always \
 
 ## Docker Compose（可选）
 
-先按 [快速开始](./quick-start.md) 准备并填写 `config.json`（包括必填的 `security.session_secret`），再创建 `docker-compose.yml`：
+先按 [快速开始](./quick-start.mdx) 准备并填写 `config.json`（包括必填的 `security.session_secret`），再创建 `docker-compose.yml`：
 
 ```yaml
 services:
   joiask:
-    image: ghcr.io/xinrea/joiask:latest
+    image: ghcr.io/powerlive-io/joiask:latest
     container_name: joiask
     restart: always
     ports:
@@ -48,7 +50,7 @@ services:
 docker compose up -d
 ```
 
-首次创建管理员仍需先停止后端，使用同版本镜像、同一配置与数据库挂载执行离线 CLI，见 [快速开始](./quick-start.md#_3-创建管理员)。
+首次创建管理员仍需先停止后端，使用同版本镜像、同一配置与数据库挂载执行离线 CLI，见 [快速开始](./quick-start.mdx#3-创建管理员)。
 
 ## 使用 Nginx 反向代理（HTTPS）
 
@@ -89,14 +91,14 @@ server {
 
 管理员会话版本字段会在后端启动时自动迁移。升级到支持会话版本校验的版本时，不带版本字段的历史管理员 cookie 会失效，管理员需重新登录；无需更换 Session 密钥，普通用户会话不受此项变更影响。多实例部署应在恢复流量前完成所有实例升级，避免旧实例继续接受已撤销的会话。
 
-角色首次迁移及历史账号权限处理见 [管理员与密码恢复](./administrators.md#初始化与升级)。升级时先停止所有后端实例，完成迁移后再恢复流量，不要混用新旧版本。
+角色首次迁移及历史账号权限处理见 [管理员与密码恢复](./administrators.mdx#初始化与升级)。升级时先停止所有后端实例，完成迁移后再恢复流量，不要混用新旧版本。
 
 ```bash
 # 停止并删除旧容器
 docker stop joiask && docker rm joiask
 
 # 拉取最新镜像
-docker pull ghcr.io/xinrea/joiask:latest
+docker pull ghcr.io/powerlive-io/joiask:latest
 
 # 启动新容器
 docker run -d --restart always \
@@ -105,7 +107,7 @@ docker run -d --restart always \
     -v $(pwd)/config.json:/work/config/config.json \
     -v $(pwd)/data:/work/db \
     -v $(pwd)/uploads:/work/frontend/public/upload-img \
-    ghcr.io/xinrea/joiask:latest
+    ghcr.io/powerlive-io/joiask:latest
 ```
 
 使用 Compose 管理的部署，请使用 `docker compose pull` 和 `docker compose up -d` 更新，不要再额外执行上述 `docker run` 创建同名容器。多实例部署仍须先停止全部旧后端。

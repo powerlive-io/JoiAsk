@@ -40,7 +40,7 @@ DEV_PORT=8088 docker compose -f docker-compose.dev.yml up --build
 
 ### 首次创建管理员
 
-开发环境也不再自动创建 `admin/admin`。首次使用前，需要通过服务端 CLI 显式创建超级管理员；已有账号按角色迁移规则保留。密码只通过标准输入传入，安全输入方法及恢复说明见 [管理员初始化与密码恢复](docs/guide/administrators.md)。
+开发环境也不再自动创建 `admin/admin`。首次使用前，需要通过服务端 CLI 显式创建超级管理员；已有账号按角色迁移规则保留。密码只通过标准输入传入，安全输入方法及恢复说明见 [管理员初始化与密码恢复](docs/content/guide/administrators.mdx)。
 
 执行命令前先停止所有连接同一数据库的后端实例。宿主机使用 `go run cmd/cmd.go admin create <username>`；Compose 开发环境先运行 `docker compose -f docker-compose.dev.yml stop backend`，再将密码通过管道传给 `docker compose -f docker-compose.dev.yml run --rm --no-deps -T backend go run cmd/cmd.go admin create <username>`。后者复用开发环境的配置与数据库卷。成功后运行 `docker compose -f docker-compose.dev.yml start backend`。不要混用生产镜像的 `/work/jask` 路径和开发容器的 `/app` 源码路径。
 
@@ -83,7 +83,7 @@ cd admin && npm run dev -- --port 3001
 
 ## 文档站
 
-文档源码位于 `docs/`，使用独立的依赖和锁文件，不影响应用构建：
+文档源码位于 `docs/`（Fumadocs + Next.js 静态导出），使用独立的依赖和锁文件，不影响应用构建：
 
 ```bash
 npm --prefix docs ci
@@ -92,4 +92,4 @@ npm --prefix docs run build
 npm --prefix docs run test
 ```
 
-提交文档前运行构建和测试。发布流程及自定义域名配置见 [文档站维护](docs/maintaining.md)。
+提交文档前运行构建和测试。文档站结构与写作约定见 [开发指南](docs/content/development.mdx#文档站)。

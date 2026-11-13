@@ -1,0 +1,35 @@
+---
+title: JoiAsk 文档
+description: 可自行部署的开源提问箱。收集观众提问，审核内容，留存值得回看的对话。
+---
+
+JoiAsk 支持话题分类、图文投稿、内容审核与卡片归档。推荐使用 Docker 部署，镜像为 `ghcr.io/powerlive-io/joiask:latest`。
+
+<Callout type="warn" title="新安装没有默认管理员或默认密码">
+  首次部署需要填写 Session 密钥，并通过离线 CLI 创建超级管理员，见 [快速开始](./guide/quick-start.mdx)。
+</Callout>
+
+![JoiAsk 提问箱首页：投稿入口、话题筛选与提问卡片](/screenshot.png)
+
+## 开始使用
+
+<Cards>
+  <Card title="快速开始" href="/guide/quick-start" description="准备配置、启动容器并创建第一个管理员。" />
+  <Card title="投稿与邮箱" href="/guide/usage" description="投稿格式标签、SMTP 与用户密码找回。" />
+  <Card title="自定义外观与 CSS" href="/guide/custom-css" description="调整前台主题变量与颜色预设。" />
+</Cards>
+
+## 部署与维护
+
+<Cards>
+  <Card title="数据库、存储与安全配置" href="/guide/configuration" description="SQLite / MySQL、图片存储与 Session 密钥。" />
+  <Card title="管理员与密码恢复" href="/guide/administrators" description="账号角色、会话撤销与离线恢复。" />
+  <Card title="部署与更新" href="/guide/deployment" description="Docker Compose、HTTPS 反向代理与版本升级。" />
+  <Card title="故障排查" href="/guide/troubleshooting" description="容器、上传、登录与邮件问题。" />
+</Cards>
+
+## 相关链接
+
+- [在线示例](https://ask.vjoi.cn/)
+- [GitHub 仓库](https://github.com/powerlive-io/JoiAsk)
+- [PowerLive](https://powerlive.io/)
