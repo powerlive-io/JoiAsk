@@ -220,7 +220,7 @@ export function PostCard({ data, isLoggedIn = false, emojiUpdates, archiveUpdate
   };
 
   const handleTagClick = () => {
-    router.push(`/tags/${data.tag_id}?name=${encodeURIComponent(data.tag.tag_name)}`);
+    router.push(`/tags/detail?id=${data.tag_id}&name=${encodeURIComponent(data.tag.tag_name)}`);
   };
 
   return (

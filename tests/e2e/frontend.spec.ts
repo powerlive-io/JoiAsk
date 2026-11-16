@@ -69,6 +69,25 @@ test('搜索支持关键词、话题过滤及空结果', async ({ page, dataset 
   await expect(page.getByText('搜索样本：目标话题', { exact: true })).toHaveCount(0);
 });
 
+test('投稿卡片话题链接打开对应详情并保留特殊字符', async ({ page, dataset }) => {
+  const tag = await dataset.createTag('链接测试 & # / ? +');
+  await dataset.createQuestion('卡片链接：目标话题', { is_publish: true }, tag);
+  await dataset.createQuestion('卡片链接：其他话题', { is_publish: true });
+  await page.goto('/search/');
+  await page.getByPlaceholder('输入搜索内容...').fill('卡片链接');
+  await page.getByRole('button', { name: '搜索', exact: true }).click();
+  await expect(page.getByText('卡片链接：其他话题', { exact: true })).toBeVisible();
+
+  await page.locator('.watermark').filter({ hasText: `#${tag.tag_name}` }).click();
+  await expect(page).toHaveURL((url) =>
+    url.pathname === '/tags/detail/' &&
+    url.searchParams.get('id') === String(tag.id) &&
+    url.searchParams.get('name') === tag.tag_name
+  );
+  await expect(page.getByText('卡片链接：目标话题', { exact: true })).toBeVisible();
+  await expect(page.getByText('卡片链接：其他话题', { exact: true })).toHaveCount(0);
+});
+
 test('话题详情可以隐藏归档，彩虹屁页面只显示彩虹投稿', async ({ page, dataset }) => {
   await dataset.createQuestion('普通公开提问', { is_publish: true });
   await dataset.createQuestion('已归档公开提问', { is_publish: true, is_archive: true });
