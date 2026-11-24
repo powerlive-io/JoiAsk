@@ -33,6 +33,8 @@ openssl rand -hex 32
 
 ## 2. 启动容器
 
+**新安装没有默认管理员或默认密码。**
+
 若要在首次启动时创建超级管理员，请在部署平台设置 `JOIASK_INITIAL_ADMIN_USERNAME`，并将 `JOIASK_INITIAL_ADMIN_PASSWORD` 作为 Secret 注入容器。使用独立的强密码（单行，最多 4096 字节）。使用 `docker run` 时，可以先在宿主机环境中安全设置这两个变量，再将 `-e JOIASK_INITIAL_ADMIN_USERNAME -e JOIASK_INITIAL_ADMIN_PASSWORD` 加到下面命令的镜像名前，不需要在命令中写出密码。
 
 新站点未提供这两个值时不会创建管理员，只提供一项则启动失败；补齐后重试即可。已有站点或已通过 CLI 建过管理员的数据库会忽略这些变量。初始化成功后可从部署配置移除两项并重建容器，保留原数据卷；更改环境变量不会重置密码。
