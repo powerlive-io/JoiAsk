@@ -3,6 +3,7 @@ package database
 import (
 	"errors"
 	"joiask-backend/internal/adminpassword"
+	"os"
 	"strings"
 
 	"gorm.io/gorm"
@@ -34,6 +35,41 @@ func OpenAdminDatabase() (*gorm.DB, error) {
 		return nil, errAdminDatabase
 	}
 	return db, nil
+}
+
+// bootstrapInitialAdmin runs only inside the first site configuration transaction.
+func bootstrapInitialAdmin(tx *gorm.DB) error {
+	username := os.Getenv("JOIASK_INITIAL_ADMIN_USERNAME")
+	password := os.Getenv("JOIASK_INITIAL_ADMIN_PASSWORD")
+	if username == "" && password == "" {
+		return nil
+	}
+	tx = tx.Session(&gorm.Session{Logger: logger.Default.LogMode(logger.Silent)})
+	var count int64
+	if err := tx.Model(&Admin{}).Count(&count).Error; err != nil {
+		return errAdminDatabase
+	}
+	if count != 0 { // An offline administrator may have been provisioned before first startup.
+		return nil
+	}
+	if strings.TrimSpace(username) == "" || password == "" {
+		return errors.New("set both JOIASK_INITIAL_ADMIN_USERNAME and JOIASK_INITIAL_ADMIN_PASSWORD to initialize an administrator")
+	}
+	if len(password) > 4096 || strings.ContainsAny(password, "\r\n") {
+		return errors.New("initial administrator password must be one line of at most 4096 bytes")
+	}
+	hash, err := adminpassword.Hash(password)
+	if err != nil {
+		return errors.New("unable to hash initial administrator password")
+	}
+	return createSuperAdmin(tx, username, hash)
+}
+
+func createSuperAdmin(tx *gorm.DB, username, hash string) error {
+	if err := tx.Create(&Admin{Username: username, Password: hash, Role: AdminRoleSuperAdmin}).Error; err != nil {
+		return errAdminDatabase
+	}
+	return nil
 }
 
 // SetAdminPassword is exclusively for trusted offline provisioning/recovery.
@@ -71,7 +107,7 @@ func SetAdminPassword(db *gorm.DB, username, password string, reset bool) error 
 			return ErrAdminExists
 		}
 		// The unique username constraint also protects concurrent creates.
-		return tx.Create(&Admin{Username: username, Password: hash, Role: AdminRoleSuperAdmin}).Error
+		return createSuperAdmin(tx, username, hash)
 	})
 	if errors.Is(err, ErrAdminExists) || errors.Is(err, ErrAdminMissing) {
 		return err

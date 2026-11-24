@@ -50,7 +50,7 @@ services:
 docker compose up -d
 ```
 
-首次创建管理员仍需先停止后端，使用同版本镜像、同一配置与数据库挂载执行离线 CLI，见 [快速开始](./quick-start.mdx#3-创建管理员)。
+如需在首次初始化时创建超级管理员，请在首次 `docker compose up` 前通过服务的 `environment` 传入 `JOIASK_INITIAL_ADMIN_USERNAME` 和 `JOIASK_INITIAL_ADMIN_PASSWORD`，不要将密码写入 Compose 文件或提交到仓库。也可以不传，之后使用离线 CLI 创建，详见 [快速开始](./quick-start.mdx#2-启动容器)。
 
 ## 使用 Nginx 反向代理（HTTPS）
 

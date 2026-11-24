@@ -30,8 +30,8 @@
 推荐使用 Docker 部署，镜像为 `ghcr.io/powerlive-io/joiask:latest`。按 **[快速开始指南](docs/content/guide/quick-start.mdx)** 完成以下步骤：
 
 1. 准备 `config.json`，生成并填写独立的 `security.session_secret`。
-2. 挂载配置、数据库和上传目录，启动容器。
-3. 停止后端后，通过离线 CLI 创建超级管理员，再恢复服务。
+2. 若希望首次启动时创建超级管理员，通过部署平台设置 `JOIASK_INITIAL_ADMIN_USERNAME` 和 `JOIASK_INITIAL_ADMIN_PASSWORD`。
+3. 挂载配置、数据库和上传目录，启动容器。未设置上述变量时，可按指南使用离线 CLI 建号。
 4. 访问提问箱 `/` 和管理后台 `/admin`。
 
 > **新安装没有默认管理员或默认密码。** Session 密钥为必填项；已有部署应保留有效密钥。

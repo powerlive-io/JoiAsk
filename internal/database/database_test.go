@@ -117,6 +117,8 @@ func TestInitializeDBFromPreviousSchema(t *testing.T) {
 }
 
 func TestInitializeDBPreservesLegacyAdminPassword(t *testing.T) {
+	t.Setenv("JOIASK_INITIAL_ADMIN_USERNAME", "other")
+	t.Setenv("JOIASK_INITIAL_ADMIN_PASSWORD", "ignored")
 	var err error
 	DB, err = gorm.Open(sqlite.Open(filepath.Join(t.TempDir(), "legacy-admin.db")), &gorm.Config{})
 	if err != nil {
@@ -134,6 +136,10 @@ func TestInitializeDBPreservesLegacyAdminPassword(t *testing.T) {
 	var admin Admin
 	if err := DB.Where("username = ?", "admin").First(&admin).Error; err != nil || admin.Password != legacy {
 		t.Fatal("initialization must preserve existing admin credentials")
+	}
+	var count int64
+	if err := DB.Model(&Admin{}).Count(&count).Error; err != nil || count != 1 {
+		t.Fatal("an existing administrator must prevent environment provisioning")
 	}
 }
 

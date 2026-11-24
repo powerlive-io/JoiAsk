@@ -81,22 +81,17 @@ func initializeDB() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// Administrators are provisioned explicitly with the server-side CLI.
-	// Startup must never create credentials or recreate renamed/deleted accounts.
-	// Initialize default config.
+	// The first site configuration and optional administrator commit together.
+	// Never use an empty admins table alone as evidence of a new installation.
 	var config Config
-	if DB.First(&config).RowsAffected == 0 {
+	err = DB.First(&config).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		log.Info("Initializing default config.")
-		if err := DB.Create(&Config{
-			SiteName:        DefaultSiteName,
-			SiteDescription: DefaultSiteDescription,
-			LogoURL:         DefaultLogoURL,
-			FaviconURL:      DefaultFaviconURL,
-			Announcement:    "提问内容将在审核后公开",
-			SpamPrompt:      deepseek.DefaultSpamPrompt,
-		}).Error; err != nil {
+		if err := initializeSite(DB); err != nil {
 			log.Fatal("Failed to initialize default config.", err)
 		}
+	} else if err != nil {
+		log.Fatal("Unable to read site configuration.")
 	} else {
 		updates := map[string]interface{}{}
 		if strings.TrimSpace(config.SiteName) == "" {
@@ -133,6 +128,23 @@ func initializeDB() {
 	if err := initializeEmojis(DB); err != nil {
 		log.Fatal("Failed to initialize default emojis.", err)
 	}
+}
+
+func initializeSite(db *gorm.DB) error {
+	return db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&Config{
+			BaseModel:       BaseModel{ID: 1}, // Only one first startup can claim the site.
+			SiteName:        DefaultSiteName,
+			SiteDescription: DefaultSiteDescription,
+			LogoURL:         DefaultLogoURL,
+			FaviconURL:      DefaultFaviconURL,
+			Announcement:    "提问内容将在审核后公开",
+			SpamPrompt:      deepseek.DefaultSpamPrompt,
+		}).Error; err != nil {
+			return err
+		}
+		return bootstrapInitialAdmin(tx)
+	})
 }
 
 // Seed once, atomically with the marker, so edits/deletions (even deleting all

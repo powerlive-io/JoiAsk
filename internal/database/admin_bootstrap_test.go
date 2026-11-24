@@ -141,7 +141,9 @@ func TestAdminProvisioningRejectsEmptyCredentials(t *testing.T) {
 	}
 }
 
-func TestStartupNeverSeedsAdministrators(t *testing.T) {
+func TestStartupWithoutInitialCredentialsNeverSeedsAdministrators(t *testing.T) {
+	t.Setenv("JOIASK_INITIAL_ADMIN_USERNAME", "")
+	t.Setenv("JOIASK_INITIAL_ADMIN_PASSWORD", "")
 	db, _ := bootstrapTestDB(t)
 	previous := DB
 	DB = db
@@ -151,6 +153,8 @@ func TestStartupNeverSeedsAdministrators(t *testing.T) {
 	if err := db.Model(&Admin{}).Count(&count).Error; err != nil || count != 0 {
 		t.Fatal("empty database must not receive default credentials")
 	}
+	t.Setenv("JOIASK_INITIAL_ADMIN_USERNAME", "too-late")
+	t.Setenv("JOIASK_INITIAL_ADMIN_PASSWORD", "too-late-password")
 	hashed, err := adminpassword.Hash("existing-password")
 	if err != nil {
 		t.Fatal(err)
@@ -187,6 +191,57 @@ func TestStartupNeverSeedsAdministrators(t *testing.T) {
 	initializeDB()
 	if err := db.Model(&Admin{}).Count(&count).Error; err != nil || count != 0 {
 		t.Fatal("startup recreated deleted administrators")
+	}
+}
+
+func TestStartupBootstrapsFirstAdminOnlyOnce(t *testing.T) {
+	db, _ := bootstrapTestDB(t)
+	previous := DB
+	DB = db
+	t.Cleanup(func() { DB = previous })
+	password := "  initial password  "
+	t.Setenv("JOIASK_INITIAL_ADMIN_USERNAME", "owner")
+	t.Setenv("JOIASK_INITIAL_ADMIN_PASSWORD", password)
+	initializeDB()
+	var original Admin
+	if err := db.First(&original).Error; err != nil {
+		t.Fatal(err)
+	}
+	if ok, legacy := adminpassword.Verify(original.Password, password); !ok || legacy || original.Username != "owner" || original.Role != AdminRoleSuperAdmin {
+		t.Fatal("first startup did not create the requested super administrator")
+	}
+	t.Setenv("JOIASK_INITIAL_ADMIN_PASSWORD", "replacement")
+	initializeDB()
+	var after Admin
+	if err := db.First(&after, original.ID).Error; err != nil || after.Password != original.Password {
+		t.Fatal("restart replaced the administrator password")
+	}
+	if err := db.Delete(&original).Error; err != nil {
+		t.Fatal(err)
+	}
+	initializeDB()
+	var count int64
+	if err := db.Model(&Admin{}).Count(&count).Error; err != nil || count != 0 {
+		t.Fatal("restart recreated the deleted bootstrap account")
+	}
+}
+
+func TestInvalidInitialCredentialsAllowRetry(t *testing.T) {
+	db, logs := bootstrapTestDB(t)
+	if err := db.AutoMigrate(&Config{}); err != nil {
+		t.Fatal(err)
+	}
+	for _, creds := range [][2]string{{"owner", ""}, {"", "private-password"}, {" \t", "private-password"}, {"owner", "private-password\n"}} {
+		t.Setenv("JOIASK_INITIAL_ADMIN_USERNAME", creds[0])
+		t.Setenv("JOIASK_INITIAL_ADMIN_PASSWORD", creds[1])
+		err := initializeSite(db)
+		if err == nil || strings.Contains(err.Error()+logs.String(), "private-password") {
+			t.Fatal("invalid credentials must fail without revealing the password")
+		}
+	}
+	t.Setenv("JOIASK_INITIAL_ADMIN_PASSWORD", "corrected-password")
+	if err := initializeSite(db); err != nil {
+		t.Fatalf("configuration creation was not rolled back for retry: %v", err)
 	}
 }
 
