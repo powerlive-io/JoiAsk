@@ -31,10 +31,11 @@ COPY --from=frontend-builder /workspace/frontend/.next/static ./frontend/.next/s
 COPY --from=frontend-builder /workspace/frontend/public ./frontend/public
 COPY --from=admin-builder /workspace/admin/out ./admin
 COPY --from=backend-builder /jask ./
+COPY config/config_container.json ./config/config.json
 COPY Caddyfile /etc/caddy/Caddyfile
 ENV GIN_MODE=release
 COPY start.sh /usr/local/bin/start-joiask
-RUN mkdir -p /work/frontend/public/upload-img \
+RUN mkdir -p /work/db /work/frontend/public/upload-img \
 	&& chmod +x /usr/local/bin/start-joiask
 EXPOSE 80
 CMD ["start-joiask"]

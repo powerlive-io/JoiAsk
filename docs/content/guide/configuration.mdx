@@ -6,7 +6,7 @@ title: "数据库、存储与安全配置"
 
 ## 数据库配置
 
-以下完整示例的 `security.session_secret` 留空，首次运行前必须用 `openssl rand -hex 32` 的输出填写；已有部署保留有效密钥。
+容器镜像自带 SQLite + 本地存储配置。以下示例可用于自定义配置文件；其中的 `security.session_secret` 留空，须通过环境变量或文件提供有效密钥。
 
 ### 使用 SQLite（推荐新手）
 
@@ -58,7 +58,7 @@ SQLite 是单文件数据库，无需额外安装数据库服务。这也是 SQL
 
 ## Session 与 B 站验证安全配置
 
-**所有部署（包括未启用 B 站验证的部署和本地开发）都必须配置 `security.session_secret`。** 使用下面的命令生成随机值，将输出的 64 个十六进制字符填入配置文件；不要直接使用示例中的空字符串，也不要将真实密钥提交到仓库：
+**所有服务部署都必须提供 Session 密钥。** 优先读取 `JOIASK_SESSION_SECRET` 环境变量，只有未设置该变量时才读取文件中的 `security.session_secret`。显式传入空值或无效值不会回退到文件。使用下面的命令生成随机值，保存在部署平台的 Secret 或私有配置文件中，不要提交到仓库：
 
 ```bash
 openssl rand -hex 32
@@ -83,11 +83,10 @@ openssl rand -hex 32
 - HTTPS 部署应将 `secure_cookie` 设为 `true`；本地 HTTP 开发保持 `false`。
 - `bilibili_cookie_key` 仅用于 B 站 Cookie 加密，与 Session 签名密钥相互独立。本次 Session 配置升级不要更换已有的 `bilibili_cookie_key`，以免影响已保存 Cookie 的解密。
 - 未配置 `bilibili_cookie_key` 时，已有用户仍可登录，但不能配置验证账号或发起新注册验证。
-- 可通过现有的 `JOIASK_CONFIG=/path/to/config.json` 指定配置文件；未设置时读取当前工作目录下的 `./config/config.json`。Session 密钥从该配置文件读取，没有单独的环境变量覆盖项。
 
 ## 图片存储配置
 
-以下仅为存储配置片段，需合并到已配置 `security.session_secret` 的完整配置中。
+以下仅为存储配置片段，需合并到完整配置中。
 
 上传文件的安全响应头、历史本地/OSS 文件排查及 CDN 配置要求见 [上传文件安全与历史文件清理](./upload-serving-security.mdx)。本地 Caddy/Next 的防护不覆盖直接从 OSS/CDN 返回的文件。
 
@@ -126,7 +125,7 @@ openssl rand -hex 32
 
 ## 生产环境完整配置（MySQL + OSS）
 
-此示例假定通过 HTTPS 访问，因此启用 `secure_cookie`。`security.session_secret` 故意留空，首次部署前运行 `openssl rand -hex 32` 并填入输出；已有部署保留其有效密钥。未填写时后端不会启动。
+此示例假定通过 HTTPS 访问，因此启用 `secure_cookie`。`security.session_secret` 故意留空：请设置 `JOIASK_SESSION_SECRET` 或在文件中填写有效密钥。已有部署保留其有效密钥。
 
 ```json
 {

@@ -63,7 +63,7 @@ func run(args []string, input io.Reader, output io.Writer) error {
 		return err
 	}
 	log.Info("Config loaded")
-	store, err := router.NewSessionStore(viper.GetString("security.session_secret"), viper.GetBool("security.secure_cookie"))
+	store, err := router.NewSessionStore(sessionSecret(), viper.GetBool("security.secure_cookie"))
 	if err != nil {
 		return err
 	}
@@ -72,6 +72,14 @@ func run(args []string, input io.Reader, output io.Writer) error {
 	log.Info("Starting server")
 	router.Run(store)
 	return nil
+}
+
+func sessionSecret() string {
+	// An explicitly empty override must fail validation, not use the file's key.
+	if value, ok := os.LookupEnv("JOIASK_SESSION_SECRET"); ok {
+		return value
+	}
+	return viper.GetString("security.session_secret")
 }
 
 func readPassword(input io.Reader) (string, error) {

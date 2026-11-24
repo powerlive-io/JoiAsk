@@ -24,18 +24,29 @@ func TestStartupRejectsUnsafeSessionSecretBeforeDatabaseInit(t *testing.T) {
 		main()
 		return
 	}
+	t.Setenv("JOIASK_SESSION_SECRET", "")
+	if err := os.Unsetenv("JOIASK_SESSION_SECRET"); err != nil {
+		t.Fatal(err)
+	}
 	executable, err := os.Executable()
 	if err != nil {
 		t.Fatal(err)
 	}
-	for name, security := range map[string]map[string]string{
-		"missing":     nil,
-		"short":       {"session_secret": "short"},
-		"legacy":      {"session_secret": "WhyJoiIsSoCute"},
-		"sample":      {"session_secret": "replace-with-a-long-random-secret"},
-		"development": {"session_secret": "dev-only-session-secret-change-in-production"},
+	for name, tc := range map[string]struct {
+		fileKey       string
+		emptyOverride bool
+	}{
+		"missing":        {},
+		"short":          {fileKey: "short"},
+		"legacy":         {fileKey: "WhyJoiIsSoCute"},
+		"sample":         {fileKey: "replace-with-a-long-random-secret"},
+		"development":    {fileKey: "dev-only-session-secret-change-in-production"},
+		"empty override": {fileKey: strings.Repeat("f", 64), emptyOverride: true},
 	} {
 		t.Run(name, func(t *testing.T) {
+			if tc.emptyOverride {
+				t.Setenv("JOIASK_SESSION_SECRET", "")
+			}
 			dir := t.TempDir()
 			databasePath := filepath.Join(dir, "ask.db")
 			configPath := filepath.Join(dir, "config.json")
@@ -43,8 +54,8 @@ func TestStartupRejectsUnsafeSessionSecretBeforeDatabaseInit(t *testing.T) {
 				"db_type": "sqlite",
 				"sqlite":  databasePath,
 			}
-			if security != nil {
-				config["security"] = security
+			if tc.fileKey != "" {
+				config["security"] = map[string]string{"session_secret": tc.fileKey}
 			}
 			data, err := json.Marshal(config)
 			if err != nil {
@@ -70,6 +81,24 @@ func TestStartupRejectsUnsafeSessionSecretBeforeDatabaseInit(t *testing.T) {
 				t.Fatalf("database must not be created before secret validation: %v", err)
 			}
 		})
+	}
+}
+
+func TestSessionSecretPrefersEnvironmentWithoutTrimming(t *testing.T) {
+	viper.Reset()
+	t.Cleanup(viper.Reset)
+	fileKey := strings.Repeat("f", 64)
+	envKey := " " + strings.Repeat("e", 64) + " "
+	viper.Set("security.session_secret", fileKey)
+	t.Setenv("JOIASK_SESSION_SECRET", envKey)
+	if sessionSecret() != envKey {
+		t.Fatal("environment override must preserve the exact key bytes")
+	}
+	if err := os.Unsetenv("JOIASK_SESSION_SECRET"); err != nil {
+		t.Fatal(err)
+	}
+	if sessionSecret() != fileKey {
+		t.Fatal("existing file-based deployments must keep their signing key")
 	}
 }
 

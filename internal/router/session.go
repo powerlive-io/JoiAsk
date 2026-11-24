@@ -32,11 +32,11 @@ func validateSessionSecret(value string) error {
 	const minimumBytes = 32
 	secret := strings.TrimSpace(value)
 	if len(secret) < minimumBytes {
-		return errors.New("security.session_secret must be at least 32 bytes; generate a random key with: openssl rand -hex 32")
+		return errors.New("JOIASK_SESSION_SECRET or security.session_secret must be at least 32 bytes; generate a random key with: openssl rand -hex 32")
 	}
 	switch secret {
 	case "WhyJoiIsSoCute", "replace-with-a-long-random-secret", "dev-only-session-secret-change-in-production":
-		return errors.New("security.session_secret must not be a published example or legacy key; generate a random key with: openssl rand -hex 32")
+		return errors.New("JOIASK_SESSION_SECRET or security.session_secret must not be a published example or legacy key; generate a random key with: openssl rand -hex 32")
 	}
 	return nil
 }

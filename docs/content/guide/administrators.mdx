@@ -46,6 +46,8 @@ jask admin promote <username>
 
 确认全部后端实例已停止。在宿主机的 Bash 中使用同版本镜像、相同配置和持久化数据库挂载，绕过 `start-joiask` 启动脚本（不启动前端、Caddy 或 HTTP 服务）：
 
+以下恢复和提升示例包含自定义 `config.json` 的挂载。如果服务使用镜像内置配置，请省略该行，仅挂载原数据库目录，不需要传入 `JOIASK_SESSION_SECRET`。
+
 ```bash
 (
     set +x

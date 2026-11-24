@@ -19,7 +19,7 @@ docker exec -it joiask bash
 - 检查端口是否被占用：`netstat -tlnp | grep 80`。
 - 检查防火墙设置。
 - 查看容器日志：`docker logs joiask`。
-- 如果提示 Session 密钥无效，检查实际挂载的配置文件，按 [安全配置](./configuration.mdx#session-与-b-站验证安全配置) 填写有效密钥。不要每次重启都重新生成密钥。
+- 如果提示 Session 密钥无效，先检查 `JOIASK_SESSION_SECRET` 是否误设为空或无效值；只有未设置时才读取配置文件。按 [安全配置](./configuration.mdx#session-与-b-站验证安全配置) 修正，重启时保持同一密钥。
 
 ## 图片上传失败
 
