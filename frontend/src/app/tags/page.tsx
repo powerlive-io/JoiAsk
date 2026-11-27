@@ -126,7 +126,7 @@ export default function TagsPage() {
     <main className={`${styles.page} mx-auto w-full max-w-[68rem] px-5 pb-16 sm:px-9`}>
       <div className={styles.counter}>
         <header>
-          <h1 className={styles.title}>话题邮局</h1>
+          <h1 className={styles.title}>话题</h1>
           <div role="search" aria-label="查找话题" className={styles.search}>
             <Search size={19} aria-hidden="true" />
             <input
