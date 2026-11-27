@@ -1,0 +1,215 @@
+.page {
+  --display-font: "Songti SC", "Noto Serif CJK SC", SimSun, serif;
+  --stamp-ink: color-mix(in srgb, var(--color-brand) 20%, var(--topic-stamp-color, #32695e));
+}
+
+.counter {
+  display: grid;
+  align-items: start;
+  gap: 2rem;
+  padding-block: clamp(2rem, 5vw, 4rem);
+}
+
+.title, .sectionTitle, .subject {
+  font-family: var(--display-font);
+  font-weight: 700;
+}
+
+.title {
+  font-size: clamp(2.75rem, 5.5vw, 4.5rem);
+  letter-spacing: -.045em;
+  line-height: 1.15;
+}
+
+.sectionTitle { font-size: 1.6rem; }
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  margin-top: 1.4rem;
+  padding-inline: .85rem .25rem;
+  border: 1px solid var(--color-fabric-stitch);
+  border-radius: var(--radius-base);
+  color: var(--color-control-secondary-foreground);
+  background: var(--color-surface);
+}
+
+.search:focus-within {
+  outline: 3px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  height: 2.85rem;
+  outline: none;
+  color: var(--color-surface-foreground);
+}
+
+.search input::placeholder { color: var(--color-control-secondary-foreground); }
+.search input::-webkit-search-cancel-button { display: none; }
+.search button { min-height: 2.75rem; padding-inline: .65rem; font-size: .875rem; cursor: pointer; }
+.search button:hover { text-decoration: underline; }
+
+.letterhead > span,
+.open {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.page :is(a, button):focus-visible {
+  outline: 3px solid var(--color-focus-ring);
+  outline-offset: 3px;
+}
+
+.stack {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  margin: .4rem;
+}
+
+.stack::before, .stack::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border: 1px solid var(--color-fabric-stitch);
+  border-radius: 4px;
+  background: var(--color-control-secondary);
+  transform: rotate(-2.5deg);
+}
+
+.stack::after {
+  background: var(--color-surface);
+  transform: rotate(1.7deg);
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 8.5rem;
+  padding: 1.2rem 1.4rem;
+  border: 1px solid var(--color-control-border);
+  border-radius: 4px;
+  color: var(--color-surface-foreground);
+  background-color: var(--color-surface);
+  box-shadow: 0 3px 9px var(--color-fabric-shadow);
+  overflow-wrap: anywhere;
+}
+
+.featured {
+  min-height: 15rem;
+  padding: 1.5rem clamp(1.4rem, 3vw, 2rem) 1.15rem;
+}
+
+.featured::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: .4rem;
+  border-radius: 3px 0 0 3px;
+  background: repeating-linear-gradient(145deg, var(--stamp-ink) 0 8px, transparent 8px 18px,
+    var(--color-brand) 18px 26px, transparent 26px 36px);
+}
+
+.letterhead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  color: var(--color-control-secondary-foreground);
+  font-size: .8rem;
+}
+
+.stamp {
+  width: clamp(6rem, 13vw, 9rem);
+  margin: -.5rem -.5rem -.35rem 0;
+  color: var(--stamp-ink);
+}
+
+.subject { font-size: 1.35rem; line-height: 1.35; }
+.featured .subject { font-size: clamp(1.75rem, 3.3vw, 2.65rem); }
+.hash { margin-right: .13em; color: var(--color-brand); }
+
+.description {
+  margin-block: .45rem .95rem;
+  color: var(--color-control-secondary-foreground);
+  font-size: .9rem;
+  line-height: 1.6;
+}
+
+.featured .description { font-size: 1rem; }
+
+/* Keep the deck compact; the directory below shows the full name and description. */
+.featured :is(.subject, .description) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  margin-top: auto;
+  padding-top: .65rem;
+  color: var(--color-control-secondary-foreground);
+  font-size: .8rem;
+}
+
+.featured .footer { border-top: 1px dashed var(--color-fabric-stitch); }
+.open { font-weight: 600; }
+.card:hover .subject, .card:focus-visible .subject { text-decoration: underline; text-underline-offset: .18em; }
+
+.slip {
+  padding-right: 2.8rem;
+  border-radius: 3px var(--radius-base) var(--radius-base) 3px;
+}
+
+.slip .open {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 2.1rem;
+  justify-content: center;
+  border-left: 1px dashed var(--color-fabric-stitch);
+  border-radius: 0 var(--radius-base) var(--radius-base) 0;
+  background: var(--color-control-secondary);
+}
+
+.notice {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: .6rem;
+  min-height: 15rem;
+  border: 1px dashed var(--color-fabric-stitch);
+  background: var(--color-surface);
+  color: var(--color-control-secondary-foreground);
+}
+
+.notice button {
+  min-height: 2.75rem;
+  padding-inline: 1rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}
+
+@media (min-width: 48rem) {
+  .counter { grid-template-columns: minmax(0, .83fr) minmax(0, 1.17fr); gap: 3rem; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .turn { animation: draw-card 280ms ease-out; transform-origin: bottom left; }
+  @keyframes draw-card {
+    from { opacity: .55; transform: translate(7px, -6px) rotate(1.5deg); }
+    to { opacity: 1; transform: none; }
+  }
+}
